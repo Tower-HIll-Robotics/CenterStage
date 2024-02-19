@@ -26,8 +26,8 @@ public class mainDrive extends LinearOpMode {
     private DcMotor slide = null;
     // private DcMotor slide = null;
     // private CRServo boxRotator = null;
-    private CRServo boxOpener = null;
-    private CRServo airplaneLauncher = null;
+    private Servo boxOpener = null;
+    private Servo airplaneLauncher = null;
     private CRServo boxRotator = null;
     double scaleMultiplier = 1;
 
@@ -68,10 +68,10 @@ public class mainDrive extends LinearOpMode {
         FLM = hardwareMap.get(DcMotorEx.class, "frontLeft");
         BLM = hardwareMap.get(DcMotorEx.class, "backLeft");
         boxRotator = hardwareMap.get(CRServo.class,"boxRotator");
-        boxOpener = hardwareMap.get(CRServo.class, "boxOpener");
+        boxOpener = hardwareMap.get(Servo.class, "boxOpener");
         wheelMotor = hardwareMap.get(DcMotorEx.class, "wheelMotor");
         // rampMotor = hardwareMap.get(DcMotorEx.class, "rampMotor");
-        // airplaneLauncher = hardwareMap.get(CRServo.class, "airplaneLauncher");
+        airplaneLauncher = hardwareMap.get(Servo.class, "airplaneLauncher");
         slide = hardwareMap.get(DcMotorEx.class, "liftMotor");
         // actuatorMotor = hardwareMap.get(DcMotorEx.class, "actuatorMotor");
 
@@ -201,24 +201,26 @@ public class mainDrive extends LinearOpMode {
                 }
 
                 if (currentGamePad2.right_bumper && !currentGamePad2.left_bumper) {
-                    boxRotator.setPower(0.2);
-                }
-                else if (currentGamePad2.left_bumper && currentGamePad2.right_bumper ) {
-                    boxRotator.setPower(0.8);
-                }
-                else {
                     boxRotator.setPower(0.5);
                 }
-
-
-                if (currentGamePad2.a) {
-                    boxOpener.setPower(1);
-                }
-                else if (currentGamePad2.y) {
-                    boxOpener.setPower(-1);
+                else if (currentGamePad2.left_bumper && !currentGamePad2.right_bumper ) {
+                    boxRotator.setPower(-0.5);
                 }
                 else {
-                    boxOpener.setPower(0);
+                    boxRotator.setPower(0);
+                }
+
+                if (currentGamePad2.a) {
+                    boxOpener.setPosition(0);
+                }
+                else if (currentGamePad2.y) {
+                    boxOpener.setPosition(0.5);
+                }
+                else if (currentGamePad2.x) {
+                    boxOpener.setPosition(1);
+                }
+                else if (currentGamePad2.b) {
+                    boxOpener.setPosition(-0.5);
                 }
 
 
@@ -242,15 +244,24 @@ public class mainDrive extends LinearOpMode {
                     rampMotor.setPower(0);
                 }*/
 
-                /*if (currentGamePad1.right_bumper) {
-                    airplaneLauncher.setPower(1);
+                /*if (currentGamePad1.dpad_up) {
+                    airplaneLauncher.setPower(0.5);
                 }
-                else if (currentGamePad1.left_bumper) {
-                    airplaneLauncher.setPower(-1);
+                else if (currentGamePad1.dpad_down) {
+                    airplaneLauncher.setPower(-0.5);
                 }
                 else {
                     airplaneLauncher.setPower(0);
                 }*/
+
+                if (currentGamePad1.dpad_left) {
+                    airplaneLauncher.setPosition(0.5);
+                }
+                else if (currentGamePad1.dpad_right) {
+                    airplaneLauncher.setPosition(0.85);
+                }
+
+
 
                 // button a to toggle slug mode
 
@@ -266,10 +277,10 @@ public class mainDrive extends LinearOpMode {
                 speed = Math.sqrt(Math.pow(gamepad1.left_stick_x, 2) + Math.pow(gamepad1.left_stick_y, 2));
 
                 //rotation is added to the left side motors of the robot to allow for curved driving
-                FLPower = (speed * (Math.sin(direction + Math.PI / 4.0)) + directionMultiplier * gamepad1.right_stick_x);
-                FRPower = (speed * (Math.sin(direction - Math.PI / 4.0)) - directionMultiplier * gamepad1.right_stick_x);
-                BLPower = (speed * (Math.sin(direction - Math.PI / 4.0)) + directionMultiplier * gamepad1.right_stick_x);
-                BRPower = (speed * (Math.sin(direction + Math.PI / 4.0)) - directionMultiplier * gamepad1.right_stick_x);
+                FLPower = (speed * (Math.sin(direction + Math.PI / 4.0)) - directionMultiplier * gamepad1.right_stick_x); // reverse + and -
+                FRPower = (speed * (Math.sin(direction - Math.PI / 4.0)) + directionMultiplier * gamepad1.right_stick_x);
+                BLPower = (speed * (Math.sin(direction - Math.PI / 4.0)) - directionMultiplier * gamepad1.right_stick_x);
+                BRPower = (speed * (Math.sin(direction + Math.PI / 4.0)) + directionMultiplier * gamepad1.right_stick_x);
 
                 if (slugMode) {
                     FRPower = FRPower * slugMultiplier;

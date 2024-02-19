@@ -65,7 +65,6 @@ public class ConceptTensorFlowObjectDetectionEasy extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-
         initTfod();
 
         // Wait for the DS start button to be touched.
