@@ -67,7 +67,7 @@ public class driveToAprilTagMecanum extends LinearOpMode {
 
     //Our Array used to hold x, y, and yaw april tag values
     static public double[] values = new double[3];
-    static public int id = 1;
+    static public int id = 2;
 
     //BNO055IMU is the orientation sensor
     BNO055IMU imu;
@@ -87,7 +87,7 @@ public class driveToAprilTagMecanum extends LinearOpMode {
         BLM.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
         // For prgoramming robot, reverse front right
-        FRM.setDirection(DcMotorEx.Direction.REVERSE);
+        // FRM.setDirection(DcMotorEx.Direction.REVERSE);
         FLM.setDirection(DcMotorEx.Direction.REVERSE);
 
         // Setting parameters for imu
@@ -110,8 +110,8 @@ public class driveToAprilTagMecanum extends LinearOpMode {
     private void runToAprilTag() {
         initAprilTag();
         int marginOfError = 1;
-        double xPower = 0.2;
-        double yPower = 0.16;
+        double xPower = 0.4;
+        double yPower = 0.4;
 
         // Wait for the DS start button to be touched.
         telemetry.addData("DS preview on/off", "3 dots, Camera Stream");

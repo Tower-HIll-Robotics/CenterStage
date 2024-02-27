@@ -47,7 +47,7 @@ public class mainAutonomous extends LinearOpMode {
     double FRPower, BRPower, FLPower, BLPower;
     double speed = 0.5;
     double turningPower = 1; // 0.22
-    double initialTurningVelocity = 200; // 150
+    double initialTurningVelocity = 300; // 150 200
     double turningVelocity;
     double errorMargin = 0.5; // degrees
     double autoPower = 0.7;
@@ -203,14 +203,16 @@ public class mainAutonomous extends LinearOpMode {
         // use spikePositions as center
         // spikePosition = "right";
 
-        if (spikePosition == "center") {
-            PlaceCenterPixel();
-        }
-        else if (spikePosition == "left") {
-            PlaceLeftPixel();
-        }
-        else {
-            PlaceRightPixel();
+        if (blue == 1) {
+            if (spikePosition == "center") {
+                BlueCenterPixel();
+            }
+            else if (spikePosition == "left") {
+                BlueLeftPixel();
+            }
+            else {
+                BlueRightPixel();
+            }
         }
         //if (blue == -1) {
           //  if (spikePosition == "right") {
@@ -262,217 +264,51 @@ public class mainAutonomous extends LinearOpMode {
     // counter-clockwise is positive
     // x ticks - 60.96 cm
 
-    private void PlaceCenterPixel() {
-        runStraight(70);
+    private void BlueCenterPixel() {
+        runStraight(66.5); // 70 is the right distance away from starting point
         sleep(500);
-        turn(180);
+        turn(160);
         sleep(500);
-        dropIntakePixel(1000);
+        dropIntakePixel(3000);
         sleep(500);
-        turn(-90);
+        turn(-70);
         sleep(500);
         turn(0);
     }
 
-    private void PlaceRightPixel() {
-        runStraight(63);
+    private void BlueRightPixel() {
+        runStraight(70);
         sleep(500);
-        turn(90);
+        turn(125);
+        sleep(500);
+        runStraight(2);
+        dropIntakePixel(3000);
+        turn(-35);
         sleep(500);
         turn(0);
-        runStraight(-7);
-        dropIntakePixel(3000);
-        sleep(500);
         // runStraight(-60);
         // sleep(500);
 }
 
-    private void PlaceLeftPixel() {
-        runStraight(63);
+    private void BlueLeftPixel() {
+        runStraight(66);
         sleep(500);
         turn(90);
         sleep(500);
         runStraight(58);
         sleep(500);
-        dropIntakePixel(1000);
+        dropIntakePixel(3000);
         // dropIntakePixel(1000);
     }
 
     private void dropIntakePixel(int time) {
-        wheelMotor.setPower(-0.7);
+        wheelMotor.setPower(-0.50);
         sleep(time);
         wheelMotor.setPower(0);
     }
     // turn all red turns negative
     // change first turn 90 to -90
-    private void RedRightSpike() {
-        runStraight(65);
-        sleep(500);
 
-        turn(90);
-        sleep(500);
-        turn(0);
-        sleep(500);
-        turn(0);
-        sleep(500);
-        runStraight(70);
-
-        turn(180);
-        sleep(500);
-        turn(0);
-        sleep(500);
-        turn(0);
-        dropIntakePixel(500);
-        turn(-180);
-        sleep(500);
-        turn(0);
-        sleep(500);
-        turn(0);
-
-        // Need to fix this part
-        runStraight(-10);
-        sleep(500);
-        runStraight(70);
-        dropIntakePixel(500);
-    }
-
-    private void RedCenterSpike() {
-        runStraight(6.5);
-
-        turn(-90);
-        sleep(500);
-        turn(0);
-        sleep(500);
-        turn(0);
-        sleep(500);
-        /*runStraight(58);
-        sleep(500);
-        runStraight(7);
-        sleep(500);
-
-        turn(90);
-        sleep(500);
-        turn(0);
-        sleep(500);
-        turn(0);
-        sleep(500);
-
-        runStraight(65);*/
-    }
-
-    private void RedLeftSpike() { // similar to blue right, but slightly closer
-        runStraight(65);
-        sleep(500);
-
-        turn(90);
-        sleep(500);
-        turn(0);
-        sleep(500);
-        turn(0);
-        sleep(500);
-
-        // Need to fix this part
-        runStraight(-10);
-        sleep(500);
-        runStraight(270);
-
-        strafe(60, true);
-    }
-
-    private void BlueRightSpike() { // similar to blue left, but slightly closer
-        runStraight(65);
-        sleep(500);
-
-        turn(-90);
-        sleep(500);
-        turn(0);
-        sleep(500);
-        turn(0);
-        sleep(500);
-        dropIntakePixel(2000);
-
-        turn(180);
-        sleep(500);
-        turn(0);
-        sleep(500);
-        turn(0);
-        sleep(500);
-
-        strafe(73, true);
-        turn(0);
-    }
-
-    private void BlueCenterSpike() {
-        runStraight(6.5);
-
-        turn(90);
-        sleep(500);
-        turn(0);
-        sleep(500);
-        turn(0);
-        sleep(500);
-        /*runStraight(65);
-        sleep(500);
-        dropIntakePixel(500);
-        sleep(500);
-
-        turn(90);
-        sleep(500);
-        turn(0);
-        sleep(500);
-        turn(0);
-        sleep(500);
-
-        strafe(73, true);*/
-    }
-
-    private void BlueLeftSpike() {
-        runStraight(65);
-        sleep(500);
-
-        turn(90);
-        sleep(500);
-        turn(0);
-        sleep(500);
-        turn(0);
-        sleep(500);
-        dropIntakePixel(500);
-
-        runStraight(5);
-        strafe(73, true);
-
-        /*
-        runStraight(65);
-        sleep(500);
-
-        turn(90);
-        sleep(500);
-        turn(0);
-        sleep(500);
-        turn(0);
-        sleep(500);
-        runStraight(65);
-        
-        turn(180);
-        sleep(500);
-        turn(0);
-        sleep(500);
-        turn(0);
-        dropIntakePixel(500);
-        turn(-180);
-        sleep(500);
-        turn(0);
-        sleep(500);
-        turn(0);
-
-        // Need to fix this part
-        runStraight(-10);
-        sleep(500);
-        runStraight(70);
-        dropIntakePixel(500);
-
-        strafe(60, true);*/
-    }
     public int CMtoTicks(double DistanceCM) {
         return (int) (DistanceCM * 16.148); // main bot
         // return (int) (DistanceCM * 4.94); // previous programming
@@ -496,8 +332,6 @@ public class mainAutonomous extends LinearOpMode {
         BRM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         FLM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         BLM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-
-
 
         if (centimeters >= 0) {
             FRPower = autoPower;
@@ -720,9 +554,9 @@ public class mainAutonomous extends LinearOpMode {
 
             if (max_x < 320 && max_x > 204) {
                 spikePosition = "left"; // center
-            } else if (max_x < 450 && max_x > 330) {
+            } else if (max_x < 570 && max_x > 330) {
                 spikePosition = "center"; // right
-            } else if (max_x < 600 && max_x > 560) {
+            } else if (max_x > 580) {
                 spikePosition = "right";
             }
         }
