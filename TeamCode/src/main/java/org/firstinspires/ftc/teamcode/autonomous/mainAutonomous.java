@@ -12,6 +12,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.*;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.vision.VisionPortal;
+import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.tfod.TfodProcessor;
 
 import java.util.List;
@@ -28,6 +30,11 @@ public class mainAutonomous extends LinearOpMode {
     private DcMotorEx rampMotor = null;
     private CRServo rightIntake = null;
     private CRServo leftIntake  = null;
+
+    private AprilTagProcessor aprilTag;
+
+    static public double[] values = new double[3];
+    static public int id = 2;
 
     // main timer
     private ElapsedTime runtime = new ElapsedTime();
@@ -155,7 +162,6 @@ public class mainAutonomous extends LinearOpMode {
         FLM = hardwareMap.get(DcMotorEx.class, "frontLeft");
         BLM = hardwareMap.get(DcMotorEx.class, "backLeft");
         wheelMotor = hardwareMap.get(DcMotorEx.class, "wheelMotor");
-        // rampMotor = hardwareMap.get(DcMotorEx.class, "rampMotor");
 
 
         // Setting parameters for imu
@@ -193,70 +199,43 @@ public class mainAutonomous extends LinearOpMode {
         FLM.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         BLM.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         wheelMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        // rampMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-
-        // rampMotor.setPower(-0.5);
-        // sleep(500);
-        // rampMotor.setPower(0);
         // test different spike positions
 
         // use spikePositions as center
         // spikePosition = "right";
 
+        double distance = 0;
+
         if (blue == 1) {
             if (spikePosition == "center") {
                 BlueCenterPixel();
+                runStraight(40);
             }
             else if (spikePosition == "left") {
                 BlueLeftPixel();
             }
             else {
                 BlueRightPixel();
+                runStraight(40);
             }
+
+            initAprilTag();
+            runToAprilTag();
         }
-        //if (blue == -1) {
-          //  if (spikePosition == "right") {
-            //    RedRightSpike();
-            //}
-            //else if (spikePosition == "center") {
-              //  RedCenterSpike();
-            //}
-            //else {
-             //   RedLeftSpike();
-            //}
-
-        //}
-        //else {
-         //   if (spikePosition == "right") {
-           //     BlueRightSpike();
-            //}
-            //else if (spikePosition == "center") {
-             //  BlueCenterSpike();
-            //}
-            //else {
-             //   BlueLeftSpike();
-            //}
-
-        //}
-
-        //if (side == "right")
-        //{
-         //   runStraight(113.2);
-          //  sleep(1000);
-           // turn(0);
-            /*if (blue == 1) {
-                runStraight(121.2); // 2 blocks
+        else {
+            if (spikePosition == "center") {
+                RedCenterPixel();
+            }
+            else if (spikePosition == "left") {
+                RedLeftPixel();
             }
             else {
-                runStraight(111.2);
-            }*/
+                RedRightPixel();
+            }
 
-        //}
-
-        // runStraight(112);
-        // dropIntakePixel(3000);
-        // run a path based on sleeve recognition
-
+            initAprilTag();
+            runToAprilTag();
+        }
     }
 
     // runStraight(30)
@@ -267,11 +246,14 @@ public class mainAutonomous extends LinearOpMode {
     private void BlueCenterPixel() {
         runStraight(66.5); // 70 is the right distance away from starting point
         sleep(500);
-        turn(160);
+        turn(90);
+        runStraight(9);
+        sleep(500);
+        turn(45);
         sleep(500);
         dropIntakePixel(3000);
         sleep(500);
-        turn(-70);
+        turn(-45);
         sleep(500);
         turn(0);
     }
@@ -286,8 +268,6 @@ public class mainAutonomous extends LinearOpMode {
         turn(-35);
         sleep(500);
         turn(0);
-        // runStraight(-60);
-        // sleep(500);
 }
 
     private void BlueLeftPixel() {
@@ -295,14 +275,25 @@ public class mainAutonomous extends LinearOpMode {
         sleep(500);
         turn(90);
         sleep(500);
-        runStraight(58);
+        runStraight(57);
         sleep(500);
         dropIntakePixel(3000);
-        // dropIntakePixel(1000);
+    }
+
+    private void RedCenterPixel() {
+        return;
+    }
+
+    private void RedRightPixel() {
+        return;
+    }
+
+    private void RedLeftPixel() {
+        return;
     }
 
     private void dropIntakePixel(int time) {
-        wheelMotor.setPower(-0.50);
+        wheelMotor.setPower(-0.55);
         sleep(time);
         wheelMotor.setPower(0);
     }
@@ -484,22 +475,12 @@ public class mainAutonomous extends LinearOpMode {
             }
 
             if (currentAngle<targetAngle-errorMargin) {
-                FLM.setPower(motorPower);
-                BLM.setPower(motorPower);
-                FRM.setPower(-motorPower);
-                BRM.setPower(-motorPower);
-
                 FLM.setVelocity(turningVelocity);
                 BLM.setVelocity(turningVelocity);
                 FRM.setVelocity(-turningVelocity);
                 BRM.setVelocity(-turningVelocity);
             }
             if (currentAngle>targetAngle+errorMargin) {
-                FLM.setPower(-motorPower);
-                BLM.setPower(-motorPower);
-                FRM.setPower(motorPower);
-                BRM.setPower(motorPower);
-
                 FLM.setVelocity(-turningVelocity);
                 BLM.setVelocity(-turningVelocity);
                 FRM.setVelocity(turningVelocity);
@@ -571,6 +552,103 @@ public class mainAutonomous extends LinearOpMode {
         // Right Spike Right: 530
     }   // end method telemetryTfod()
 
+    private void runToAprilTag() {
+        FRM.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        BRM.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        FLM.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        BLM.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        updateValues();
+        int marginOfError = 1;
+        double xPower = 0.4;
+        double yPower = 0.4;
+
+
+        // Wait for the DS start button to be touched.
+        telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
+        telemetry.addData(">", "Touch Play to start OpMode");
+        telemetry.update();
+        waitForStart();
+        if (opModeIsActive()) {
+            updateValues();
+            // values[0] is the left and right alignment with april tag (x)
+            // values[1] is the distance to april tag (y)
+            // values[2] is the yaw of the robot to the april tag
+            double desiredX = 0;
+            double desiredY = 20;
+            double distanceX;
+            double distanceY;
+            values[1]= 30;
+
+
+
+
+            while (values[0] >= desiredX + marginOfError || values[0] <= desiredX - marginOfError || values[1] >= desiredY + marginOfError || values[1] <= desiredY - marginOfError && opModeIsActive()) {
+                updateValues();
+                distanceY = Math.abs(desiredY - values[1]);
+                if (values[0] > desiredX){
+                    FLM.setPower(xPower);
+                    BLM.setPower(-xPower);
+                    FRM.setPower(-xPower);
+                    BRM.setPower(xPower);
+                }
+                else if (values[0] < desiredX){
+                    FLM.setPower(-xPower);
+                    BLM.setPower(xPower);
+                    FRM.setPower(xPower);
+                    BRM.setPower(-xPower);
+                }
+                else{
+                    FLM.setPower(0);
+                    BLM.setPower(0);
+                    FRM.setPower(0);
+                    BRM.setPower(0);
+                }
+
+
+                if (values[1] > desiredY){
+                    if (distanceY < 5){
+                        FLM.setPower(0.5 * yPower);
+                        BLM.setPower(0.5 * yPower);
+                        FRM.setPower(0.5 * yPower);
+                        BRM.setPower(0.5 * yPower);
+                    }
+                    FLM.setPower(yPower);
+                    BLM.setPower(yPower);
+                    FRM.setPower(yPower);
+                    BRM.setPower(yPower);
+                }
+                else if (values[1] < desiredY){
+                    if (distanceY < 5){
+                        FLM.setPower(0.5 * -yPower);
+                        BLM.setPower(0.5 * -yPower);
+                        FRM.setPower(0.5 * -yPower);
+                        BRM.setPower(0.5 * -yPower);
+                    }
+                    FLM.setPower(-yPower);
+                    BLM.setPower(-yPower);
+                    FRM.setPower(-yPower);
+                    BRM.setPower(-yPower);
+                }
+                else{
+                    FLM.setPower(0);
+                    BLM.setPower(0);
+                    FRM.setPower(0);
+                    BRM.setPower(0);
+                }
+
+
+
+
+                telemetry.addData("x", values[0]);
+                telemetry.addData("y", values[1]);
+                telemetry.addData("yaw", values[2]);
+                telemetry.update();
+
+
+            }
+        }
+    }
+
     private void initTfod() {
         // Create the TensorFlow processor by using a builder.
         tfod = new TfodProcessor.Builder()
@@ -634,4 +712,79 @@ public class mainAutonomous extends LinearOpMode {
 
     }   // end method initTfod()
 
+    private void initAprilTag() {
+        // Create the AprilTag processor.
+        aprilTag = new AprilTagProcessor.Builder()
+                // == CAMERA CALIBRATION ==
+                // If you do not manually specify calibration parameters, the SDK will attempt
+                // to load a predefined calibration for your camera.
+                .setLensIntrinsics(578.272, 578.272, 402.145, 221.506)
+
+
+                // ... these parameters are fx, fy, cx, cy.
+
+
+                .build();
+
+
+        // Create the vision portal by using a builder.
+        VisionPortal.Builder builder = new VisionPortal.Builder();
+
+
+        // Set the camera
+        builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
+
+
+        // Choose a camera resolution. Not all cameras support all resolutions.
+        builder.setCameraResolution(new Size(640, 360));
+
+
+        // Choose whether or not LiveView stops if no processors are enabled.
+        // If set "true", monitor shows solid orange screen if no processors enabled.
+        // If set "false", monitor shows camera view without annotations.
+        builder.setAutoStopLiveView(false);
+
+
+        // Set and enable the processor.
+        builder.addProcessor(aprilTag);
+
+
+        // Build the Vision Portal, using the above settings.
+        visionPortal = builder.build();
+    }   // end method initAprilTag()
+
+
+    /**
+     * Add telemetry about AprilTag detections.
+     */
+
+
+    private void updateValues() {
+
+
+        List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+        double x = 0;
+        double y = 30;
+        double yaw = 0;
+
+
+        // Set the x, y, and yaw for the specified ID
+        currentDetections = aprilTag.getDetections();
+        for (AprilTagDetection detection : currentDetections) {
+            if (detection.metadata != null) {
+                //might be able to optimize this by not going through every detection
+                if (detection.id == id) {
+                    x = detection.ftcPose.x;
+                    y = detection.ftcPose.y;
+                    yaw = detection.ftcPose.yaw;
+                    break;
+                }
+            }
+        }   // end for() loop
+
+
+        values[0] = x;
+        values[1] = y;
+        values[2] = yaw;
+    }   // end method updateValues()
 }
