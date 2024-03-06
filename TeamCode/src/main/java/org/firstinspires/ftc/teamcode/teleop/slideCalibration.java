@@ -3,14 +3,21 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.exception.RobotCoreException;
-import com.qualcomm.robotcore.hardware.*;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import org.firstinspires.ftc.robotcore.external.navigation.*;
 
-@TeleOp(name="MainDrive", group="--")
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
+import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+
+@TeleOp(name="slideCalibration", group="--")
 // @Disabled
-public class mainDrive extends LinearOpMode {
+public class slideCalibration extends LinearOpMode {
 
     // Declare OpMode members.
     private ElapsedTime runtime = new ElapsedTime();
@@ -183,10 +190,10 @@ public class mainDrive extends LinearOpMode {
                     imu.initialize(parameters);
                 }
 
-                if (currentGamePad2.right_trigger > 0 && slide.getCurrentPosition() > -1100) {
+                if (currentGamePad2.right_trigger > 0) {
                     slide.setPower(1);
                 }
-                else if (currentGamePad2.left_trigger > 0 && slide.getCurrentPosition() < 0) {
+                else if (currentGamePad2.left_trigger > 0) {
                     slide.setPower(-1);
                 }
                 else {

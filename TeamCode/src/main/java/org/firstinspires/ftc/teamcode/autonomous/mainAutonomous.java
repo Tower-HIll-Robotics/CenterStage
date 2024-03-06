@@ -27,14 +27,19 @@ public class mainAutonomous extends LinearOpMode {
     private DcMotorEx FLM = null; // V1
     private DcMotorEx BLM = null; // V3
     private DcMotorEx wheelMotor = null;
+
+    private DcMotorEx slide = null;
     private DcMotorEx rampMotor = null;
     private CRServo rightIntake = null;
     private CRServo leftIntake  = null;
+    private CRServo boxRotator = null;
 
+    private Servo boxOpener = null;
     private AprilTagProcessor aprilTag;
 
     static public double[] values = new double[3];
-    static public int id = 2;
+    // static public int id = 2; here
+    static public int id;
 
     // main timer
     private ElapsedTime runtime = new ElapsedTime();
@@ -54,7 +59,7 @@ public class mainAutonomous extends LinearOpMode {
     double FRPower, BRPower, FLPower, BLPower;
     double speed = 0.5;
     double turningPower = 1; // 0.22
-    double initialTurningVelocity = 300; // 150 200
+    double initialTurningVelocity = 500; // 150 200
     double turningVelocity;
     double errorMargin = 0.5; // degrees
     double autoPower = 0.7;
@@ -161,7 +166,10 @@ public class mainAutonomous extends LinearOpMode {
         BRM = hardwareMap.get(DcMotorEx.class, "backRight");
         FLM = hardwareMap.get(DcMotorEx.class, "frontLeft");
         BLM = hardwareMap.get(DcMotorEx.class, "backLeft");
+        boxRotator = hardwareMap.get(CRServo.class,"boxRotator");
         wheelMotor = hardwareMap.get(DcMotorEx.class, "wheelMotor");
+        boxOpener = hardwareMap.get(Servo.class, "boxOpener");
+        slide = hardwareMap.get(DcMotorEx.class, "liftMotor");
 
 
         // Setting parameters for imu
@@ -198,44 +206,83 @@ public class mainAutonomous extends LinearOpMode {
         BRM.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         FLM.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         BLM.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        slide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         wheelMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+
+        slide.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        slide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         // test different spike positions
 
         // use spikePositions as center
         // spikePosition = "right";
 
-        double distance = 0;
+        int extra_distance = 0;
+        if (side == "right") {
+            extra_distance = 150;
+        }
+
 
         if (blue == 1) {
             if (spikePosition == "center") {
                 BlueCenterPixel();
-                runStraight(40);
+
+                if (side == "left" || side == "right") {
+                    runStraight(20 + extra_distance);
+
+                    initAprilTag();
+                    runToAprilTag(2,-3,20);
+                }
             }
             else if (spikePosition == "left") {
                 BlueLeftPixel();
+                if (side == "left" || side == "right") {
+                    runStraight(extra_distance - 5);
+
+                    initAprilTag();
+                    runToAprilTag(2,-3,20);
+                }
+
             }
             else {
                 BlueRightPixel();
-                runStraight(40);
-            }
+                if (side == "left" || side == "right") {
+                    runStraight(30 + extra_distance); // good
 
-            initAprilTag();
-            runToAprilTag();
+                    initAprilTag();
+                    runToAprilTag(2,-3,20);
+                }
+            }
         }
         else {
             if (spikePosition == "center") {
                 RedCenterPixel();
+                if (side == "left" || side == "right") {
+                    runStraight(20 + extra_distance);
+
+                    initAprilTag();
+                    runToAprilTag(5,-3,20);
+                }
             }
             else if (spikePosition == "left") {
                 RedLeftPixel();
+                if (side == "left" || side == "right") {
+                    runStraight(30 + extra_distance);
+
+                    initAprilTag();
+                    runToAprilTag(5,-3,20);
+                }
             }
             else {
                 RedRightPixel();
-            }
+                if (side == "left" || side == "right") {
+                    runStraight(extra_distance - 5); // good
 
-            initAprilTag();
-            runToAprilTag();
+                    initAprilTag();
+                    runToAprilTag(5,-3,20);
+                }
+            }
         }
+        outtakePixel();
     }
 
     // runStraight(30)
@@ -245,60 +292,117 @@ public class mainAutonomous extends LinearOpMode {
 
     private void BlueCenterPixel() {
         runStraight(66.5); // 70 is the right distance away from starting point
-        sleep(500);
+        sleep(250);
         turn(90);
-        runStraight(9);
-        sleep(500);
-        turn(45);
-        sleep(500);
-        dropIntakePixel(3000);
-        sleep(500);
-        turn(-45);
-        sleep(500);
+        runStraight(20);
+        sleep(250);
+        turn(55);
+        sleep(250);
+        dropIntakePixel(1500);
+        strafe(10, true);
+        sleep(250);
+        turn(-55);
+        sleep(250);
         turn(0);
     }
 
     private void BlueRightPixel() {
         runStraight(70);
-        sleep(500);
-        turn(125);
-        sleep(500);
-        runStraight(2);
-        dropIntakePixel(3000);
-        turn(-35);
-        sleep(500);
+        sleep(250);
+        turn(107);
+        sleep(250);
+        dropIntakePixel(1500);
+        turn(-17);
+        sleep(250);
         turn(0);
 }
 
     private void BlueLeftPixel() {
-        runStraight(66);
-        sleep(500);
+        runStraight(10);
+        strafe(72, true);
+        sleep(250);
+        runStraight(50);
+        sleep(250);
         turn(90);
-        sleep(500);
-        runStraight(57);
-        sleep(500);
-        dropIntakePixel(3000);
+        sleep(250);
+        dropIntakePixel(1500);
     }
 
     private void RedCenterPixel() {
-        return;
+        runStraight(66.5); // 70 is the right distance away from starting point
+        sleep(250);
+        turn(-90);
+        runStraight(20);
+        sleep(250);
+        turn(-55);
+        sleep(250);
+        dropIntakePixel(1500);
+        strafe(10, false);
+        sleep(250);
+        turn(55);
+        sleep(250);
+        turn(0);
     }
 
-    private void RedRightPixel() {
-        return;
+    private void RedRightPixel() { // most similar to blue left but reversed angles
+        runStraight(20);
+        sleep(250);
+        turn(-90);
+        sleep(250);
+        strafe(65, true);
+        sleep(250);
+        dropIntakePixel(1500);
     }
 
-    private void RedLeftPixel() {
-        return;
+    private void RedLeftPixel() { // most similar to blue right but reversed angles
+        runStraight(70);
+        sleep(250);
+        turn(-100);
+        sleep(250);
+        dropIntakePixel(1500);
+        turn(-10);
+        sleep(250);
+        turn(0);
     }
 
     private void dropIntakePixel(int time) {
-        wheelMotor.setPower(-0.55);
+        wheelMotor.setPower(0.35);
         sleep(time);
         wheelMotor.setPower(0);
     }
     // turn all red turns negative
     // change first turn 90 to -90
+
+    private void outtakePixel() {
+        FRM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        BRM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        FLM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        BLM.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        slide.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+
+        autoPower = 0.5*autoPower;
+        runStraight(35);
+
+        slide.setTargetPosition(-1000);
+        slide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        slide.setPower(-0.7);
+        boxRotator.setPower(0.2);
+
+        while (slide.isBusy()) { // if
+            telemetry.addData("Slide Position: ", slide.getCurrentPosition());
+        }
+
+        boxRotator.setPower(0);
+        slide.setPower(0);
+        slide.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+
+        boxOpener.setPosition(0.7);
+        sleep(500);
+        boxOpener.setPosition(0);
+
+        // turn(0);
+        // runStraight(5);
+    }
 
     public int CMtoTicks(double DistanceCM) {
         return (int) (DistanceCM * 16.148); // main bot
@@ -313,7 +417,6 @@ public class mainAutonomous extends LinearOpMode {
     public void runStraight(double centimeters) {
         int ticks = CMtoTicks(centimeters);
 
-        FRM.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         FRM.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         BRM.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         FLM.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -454,7 +557,7 @@ public class mainAutonomous extends LinearOpMode {
         return globalAngle;
     }
 
-    public void turn(double degrees){
+    public void turn(double degrees) {
         FRM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         FLM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         BRM.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -464,9 +567,7 @@ public class mainAutonomous extends LinearOpMode {
         double motorPower = turningPower;
         double linearError = 0;
 
-        while (currentAngle<(targetAngle-errorMargin) || currentAngle>(targetAngle+errorMargin))
-        {
-
+        while (currentAngle<(targetAngle-errorMargin) || currentAngle>(targetAngle+errorMargin)) {
             if (Math.abs(targetAngle - currentAngle) < 5) {
                 turningVelocity = 0.8 * initialTurningVelocity;
             }
@@ -537,7 +638,7 @@ public class mainAutonomous extends LinearOpMode {
                 spikePosition = "left"; // center
             } else if (max_x < 570 && max_x > 330) {
                 spikePosition = "center"; // right
-            } else if (max_x > 580) {
+            } else if (max_x > 582) {
                 spikePosition = "right";
             }
         }
@@ -552,16 +653,17 @@ public class mainAutonomous extends LinearOpMode {
         // Right Spike Right: 530
     }   // end method telemetryTfod()
 
-    private void runToAprilTag() {
+    private void runToAprilTag(int id_number, double x, double y) {
         FRM.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         BRM.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         FLM.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         BLM.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+
+        id = id_number;
         updateValues();
         int marginOfError = 1;
-        double xPower = 0.4;
-        double yPower = 0.4;
-
+        double xPower = 0.36;
+        double yPower = 0.36;
 
         // Wait for the DS start button to be touched.
         telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
@@ -573,14 +675,11 @@ public class mainAutonomous extends LinearOpMode {
             // values[0] is the left and right alignment with april tag (x)
             // values[1] is the distance to april tag (y)
             // values[2] is the yaw of the robot to the april tag
-            double desiredX = 0;
-            double desiredY = 20;
+            double desiredX = x;
+            double desiredY = y;
             double distanceX;
             double distanceY;
             values[1]= 30;
-
-
-
 
             while (values[0] >= desiredX + marginOfError || values[0] <= desiredX - marginOfError || values[1] >= desiredY + marginOfError || values[1] <= desiredY - marginOfError && opModeIsActive()) {
                 updateValues();
@@ -603,7 +702,6 @@ public class mainAutonomous extends LinearOpMode {
                     FRM.setPower(0);
                     BRM.setPower(0);
                 }
-
 
                 if (values[1] > desiredY){
                     if (distanceY < 5){
@@ -636,15 +734,10 @@ public class mainAutonomous extends LinearOpMode {
                     BRM.setPower(0);
                 }
 
-
-
-
                 telemetry.addData("x", values[0]);
                 telemetry.addData("y", values[1]);
                 telemetry.addData("yaw", values[2]);
                 telemetry.update();
-
-
             }
         }
     }
